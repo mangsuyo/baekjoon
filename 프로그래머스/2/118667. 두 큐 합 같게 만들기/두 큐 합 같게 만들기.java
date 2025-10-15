@@ -1,69 +1,47 @@
 import java.util.*;
 
 class Solution {
-	public int solution(int[] queue1, int[] queue2) {
-		int answer = 0;
-		int[] sums = getTotal(queue1, queue2);
-		long sumA = sums[0];
-		long sumB = sums[1];
-
-		int lenA = queue1.length;
-		int lenB = queue2.length;
-
-		int loop = 0;
-
-		if ((sumA + sumB) % 2 != 0)
-			return -1;
-
-		Queue<Integer> queueA = new ArrayDeque<>();
-		Queue<Integer> queueB = new ArrayDeque<>();
-
-		for (int i = 0; i < queue1.length; i++) {
-			queueA.add(queue1[i]);
-		}
-
-		for (int i = 0; i < queue2.length; i++) {
-			queueB.add(queue2[i]);
-		}
-
-		while (!queueA.isEmpty() && !queueB.isEmpty()) {
-			if(loop > (lenA + lenB) * 3){
-				break;
-			}
-			if (sumA == sumB)
-				return answer;
-			else if (sumA > sumB) {
-				int num = queueA.poll();
-				queueB.add(num);
-				sumA -= num;
-				sumB += num;
-				answer += 1;
-			} else {
-				int num = queueB.poll();
-				queueA.add(num);
-				sumA += num;
-				sumB -= num;
-				answer += 1;
-			}
-			loop += 1;
-		}
-
-		return -1;
-
-	}
-
-	public int[] getTotal(int[] queue1, int[] queue2) {
-		int sumA = 0;
-		int sumB = 0;
-
-		for (int i = 0; i < queue1.length; i++) {
-			sumA += queue1[i];
-		}
-
-		for (int i = 0; i < queue2.length; i++) {
-			sumB += queue2[i];
-		}
-
-		return new int[] {sumA, sumB, sumA + sumB};
-	}
+    public int solution(int[] queue1, int[] queue2) {
+        int answer = -2;
+        
+        long sumA = Arrays.stream(queue1).sum();
+        long sumB = Arrays.stream(queue2).sum();
+        
+        long totalSum = sumA + sumB;
+        if(totalSum % 2 != 0) return -1;
+        
+        Queue<Integer> queueA = new ArrayDeque<>();
+        Queue<Integer> queueB = new ArrayDeque<>();
+        
+        for(int i = 0; i < queue1.length; i++){
+            queueA.offer(queue1[i]);
+        }
+        
+        for(int i = 0; i < queue2.length; i++){
+            queueB.offer(queue2[i]);
+        }
+        int i = 0;
+        
+        while(i < queue1.length * 4){
+            if(sumA < sumB){
+                int pop = queueB.poll();
+                sumB -= pop;
+                sumA += pop;
+                queueA.offer(pop);
+                i++;
+            }
+            else if(sumA > sumB){
+                int pop = queueA.poll();
+                sumB += pop;
+                sumA -= pop;
+                queueB.offer(pop);
+                i++;    
+            }
+            else{
+                return i;
+            }
+        }
+        
+        return -1;
+    }
 }
