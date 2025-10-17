@@ -3,42 +3,46 @@ import java.util.*;
 class Solution {
     public int solution(int[] queue1, int[] queue2) {
         int answer = -2;
-        
-        long sumA = Arrays.stream(queue1).sum();
-        long sumB = Arrays.stream(queue2).sum();
-        
-        long totalSum = sumA + sumB;
-        if(totalSum % 2 != 0) return -1;
-        
         Queue<Integer> queueA = new ArrayDeque<>();
         Queue<Integer> queueB = new ArrayDeque<>();
         
+        long sum = 0;
+        long sumA = 0;
+        long sumB = 0;
+        
         for(int i = 0; i < queue1.length; i++){
-            queueA.offer(queue1[i]);
+            sum += queue1[i];
+            sumA += queue1[i];
+            queueA.add(queue1[i]);
         }
         
         for(int i = 0; i < queue2.length; i++){
-            queueB.offer(queue2[i]);
+            sum += queue2[i];
+            sumB += queue2[i];
+            queueB.add(queue2[i]);
         }
-        int i = 0;
         
-        while(i < queue1.length * 4){
-            if(sumA < sumB){
-                int pop = queueB.poll();
-                sumB -= pop;
-                sumA += pop;
-                queueA.offer(pop);
-                i++;
+        int count = 0;
+        
+        if(sum % 2 != 0) return -1;
+        
+        while(count < 3 * queue1.length){
+            if(sumA > sumB){
+                int num = queueA.poll();
+                queueB.add(num);
+                sumB += num;
+                sumA -= num;
+                count += 1;
             }
-            else if(sumA > sumB){
-                int pop = queueA.poll();
-                sumB += pop;
-                sumA -= pop;
-                queueB.offer(pop);
-                i++;    
+            else if(sumA < sumB){
+                int num = queueB.poll();
+                queueA.add(num);
+                sumA += num;
+                sumB -= num;
+                count += 1;
             }
             else{
-                return i;
+                return count;
             }
         }
         
