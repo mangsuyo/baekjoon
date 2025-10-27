@@ -1,60 +1,56 @@
 import java.util.*;
 
 class Solution {
-
-	Map<Integer, List<Integer>> graph;
-	boolean[] visited;
-	int maxSheep = 0;
-
-	public int solution(int[] info, int[][] edges) {
-		graph = new HashMap<>();
-		for (int i = 0; i < edges.length; i++) {
-			int start = edges[i][0];
-			int end = edges[i][1];
-			graph.putIfAbsent(start, new ArrayList<>());
-			graph.get(start).add(end);
-		}
-		List<Integer> path = new ArrayList<>();
-		path.add(0);
-		visited = new boolean[info.length + 1];
-		visited[0] = true;
-
-		backtrack(path, info, 1, 0);
-		System.out.println(path);
-		return maxSheep;
-	}
-
-	void backtrack(List<Integer> path, int[] info, int sheep, int wolf) {
-		if(wolf >= sheep) return;
-
-		if(sheep > maxSheep) maxSheep = sheep;
-
-		List<Integer> nextNodes = new ArrayList<>(path);
-
-		for(int node: path){
-			if(graph.get(node) != null){
-				for(int next: graph.get(node)){
-					if(!visited[next]){
-						nextNodes.add(next);
-					}
-				}
-			}
-		}
-
-		for(int next: nextNodes){
-			if(!visited[next]){
-				boolean isNextSheep = info[next] == 0;
-				path.add(next);
-				visited[next] = true;
-				if(isNextSheep){
-					backtrack(path, info, sheep + 1, wolf);
-				}
-				else{
-					backtrack(path, info, sheep, wolf + 1);
-				}
-				visited[next] = false;
-				path.remove(path.size() - 1);
-			}
-		}
-	}
+    int n;
+    boolean[] visited;
+    Map<Integer, List<Integer>> graph;
+    int maxSheep = 0;
+    
+    public int solution(int[] info, int[][] edges) {
+        int answer = 0;
+        this.n = info.length;
+        graph = new HashMap<>();
+        for(int[] edge: edges){
+            graph.putIfAbsent(edge[0], new ArrayList<>());
+            graph.get(edge[0]).add(edge[1]);
+        }
+        visited = new boolean[n];
+        visited[0] = true;
+        backtrack(info, 1, 0);
+        return maxSheep;
+    }
+    
+    void backtrack(int[] info, int sheep, int wolf){        
+        maxSheep = Math.max(maxSheep, sheep);
+        List<Integer> nextNodes = new ArrayList<>();
+        
+        for(int i = 0; i < n; i++){
+            if(visited[i]){
+                if(graph.containsKey(i)){
+                    for(int nextNode: graph.get(i)){
+                        if(!visited[nextNode]){
+                            nextNodes.add(nextNode);
+                        }
+                    }
+                }
+            }
+        }
+        
+        for(int nextNode: nextNodes){
+            int nextSheep = sheep;
+            int nextWolf = wolf;
+            if(info[nextNode] == 0){
+                nextSheep += 1;
+            }
+            else if(info[nextNode] == 1){
+                nextWolf += 1;
+            }
+            
+            if(nextSheep > nextWolf){
+                visited[nextNode] = true;
+                backtrack(info, nextSheep, nextWolf);
+                visited[nextNode] = false;
+            }
+        }
+    }
 }
