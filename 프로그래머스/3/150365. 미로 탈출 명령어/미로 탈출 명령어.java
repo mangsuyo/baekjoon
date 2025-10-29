@@ -1,79 +1,60 @@
 import java.util.*;
 
 class Solution {
+    
+    List<String> answers = new ArrayList<>();
+    int n;
+    int m;
+    
+    public String solution(int n, int m, int x, int y, int r, int c, int k) {
+        String answer = "";
+        this.n = n;    
+        this.m = m;
+        
+        int dist = Math.abs(x - r) + Math.abs(y - c);
+        
+        if(dist % 2 == 0){
+            if(k % 2 != 0) return "impossible";
+        }
+        else{
+            if(k % 2 == 0) return "impossible";
+        }
+                
+        if(Math.abs(x - r) + Math.abs(y - c) > k){
+            return "impossible";
+        }
+        
+        if(!dfs(x - 1, y - 1, r - 1, c - 1, 0, k, "")){
+            return "impossible";
+        };
 
-	int n;
-	int m;
-	int x;
-	int y;
-	int r;
-	int c;
-	int k;
-	boolean flag = false;
-
-	int[] dr = new int[] {-1, 1, 0, 0};
-	int[] dc = new int[] {0, 0, -1, 1};
-	char[] directions = new char[] {'d', 'l', 'r', 'u'};
-
-	class Pair {
-		int row;
-		int col;
-		String str;
-
-		public Pair(int row, int col, String str) {
-			this.row = row;
-			this.col = col;
-			this.str = str;
-		}
-	}
-
-	public String solution(int n, int m, int x, int y, int r, int c, int k) {
-		this.n = n;
-		this.m = m;
-		this.x = x - 1;
-		this.y = y - 1;
-		this.r = r - 1;
-		this.c = c - 1;
-		this.k = k;
-
-		int dist = (Math.abs(this.x - this.r) + Math.abs(this.y - this.c));
-
-		if(dist % 2 == 0){
-			if(k % 2 != 0) return "impossible";
-		}
-
-		if(dist % 2 != 0){
-			if(k % 2 == 0) return "impossible";
-		}
-
-		List<String> list = new ArrayList<>();
-		dfs(new Pair(this.x, this.y, ""), 0, list);
-		return list.isEmpty() ? "impossible" : list.get(0);
-	}
-
-	public boolean dfs(Pair p, int count, List<String> list) {
-
-		if (count > k)
-			return false;
-
-		if (p.row < 0 || p.col < 0 || p.row >= n || p.col >= m)
-			return false;
-
-		if ((Math.abs(p.row - r) + Math.abs(p.col - c)) > k - count) {
-			return false;
-		}
-
-		if (p.row == r && p.col == c && count == k) {
-			list.add(p.str);
-			return true;
-		}
-
-		if (dfs(new Pair(p.row + 1, p.col, p.str + "d"), count + 1, list))
-			return true;
-		if (dfs(new Pair(p.row, p.col - 1, p.str + "l"), count + 1, list))
-			return true;
-		if (dfs(new Pair(p.row, p.col + 1, p.str + "r"), count + 1, list))
-			return true;
-		return dfs(new Pair(p.row - 1, p.col, p.str + "u"), count + 1, list);
-	}
+        
+        return answers.size() == 0 ? "impossible" : answers.get(0);
+    }
+    
+    boolean dfs(int curR, int curC, int endR, int endC, int depth, int k, String path){
+        
+        if(depth > k) return false;
+        
+        if(curR < 0 || curR >= n || curC < 0 || curC >= m) return false;
+        
+        if((Math.abs(curR - endR) + Math.abs(curC - endC)) > k - depth) return false;
+        if(curR == endR && curC == endC && depth == k){
+            answers.add(path);
+            return true;
+        }
+        
+        if(dfs(curR + 1, curC, endR, endC, depth + 1, k, path + "d")){
+            return true;
+        };
+        if(dfs(curR, curC - 1, endR, endC, depth + 1, k, path + "l")){
+            return true;
+        };        
+        if(dfs(curR, curC + 1, endR, endC, depth + 1, k, path + "r")){
+            return true;
+        };
+        if(dfs(curR - 1, curC, endR, endC, depth + 1, k, path + "u")) return true;
+        
+        return false;
+    }
 }
