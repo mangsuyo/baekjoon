@@ -1,54 +1,33 @@
 import java.util.*;
 
 class Solution {
-    
-    // 언제끝났는지만 알면됨.
-    class Job{
-        int index;
-        int requestTime;
-        int costTime;
-        
-        public Job(int index, int requestTime, int costTime){
-            this.index = index;
-            this.requestTime = requestTime;
-            this.costTime = costTime;
-        }
-    }
-    
-    
     public int solution(int[][] jobs) {
-        List<Job> list = new ArrayList<>();
-        for(int i = 0; i < jobs.length; i++){
-            list.add(new Job(i, jobs[i][0], jobs[i][1]));
-        }
         
-        Queue<Job> queue = new PriorityQueue<>((p1, p2) -> {
-            if(p1.costTime == p2.costTime){
-                if(p1.requestTime == p2.requestTime){
-                    return p1.index - p2.index;
-                }
-                else{
-                    return p1.requestTime - p2.requestTime;
-                }
+        Queue<int[]> queue = new PriorityQueue<>((t1, t2) -> t1[1] - t2[1]);
+        Arrays.sort(jobs, (j1, j2) -> j1[0] - j2[0]);
+        
+        int curT = 0;
+        int jobIndex = 0;
+        int count = 0;
+        int answer = 0;
+        int n = jobs.length;
+        
+        while(count < n){
+            while(jobIndex < n && jobs[jobIndex][0] <= curT){
+                queue.offer(new int[]{jobs[jobIndex][0], jobs[jobIndex][1]});
+                jobIndex += 1;
+            }
+            
+            if(!queue.isEmpty()){
+                int[] cur = queue.poll();
+                curT += cur[1];
+                answer += curT - cur[0];
+                count += 1;
             }
             else{
-                return p1.costTime - p2.costTime;
+                curT = jobs[jobIndex][0];
             }
-        });
-        
-            
-        for(Job j: list){
-            queue.offer(j);
         }
-        
-        int answer = 0;
-        int time = 0;
-        while(!queue.isEmpty()){
-            Job cur = queue.poll();
-            if(time < cur.requestTime) time = cur.requestTime;
-            time = time + cur.costTime;
-            answer += time - cur.requestTime;
-        }
-        return answer / jobs.length;
+        return answer / n;
     }
 }
