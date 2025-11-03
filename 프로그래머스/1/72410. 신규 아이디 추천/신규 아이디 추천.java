@@ -1,72 +1,52 @@
 class Solution {
     public String solution(String new_id) {
+        String first = new_id.toLowerCase();
+        StringBuilder second = new StringBuilder();
         
-        // 1단계
-        String one = new_id.toLowerCase();
-        
-        // 2단계
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < one.length(); i++){
-            char c = one.charAt(i);
-            if('a' <= c && c <= 'z'){
-                sb.append(c);
-            }
-            else if('0' <= c && c <= '9'){
-                sb.append(c);
-            }
-            else if(c == '-' || c == '_' || c == '.'){
-                sb.append(c);
+        for(char c: first.toCharArray()){
+            if(('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || c == '-' || c == '_' || c == '.'){
+                second.append(c);
             }
         }
         
-        // 3단계
-        String two = sb.toString();
-        sb = new StringBuilder();
-        
-        int flag = 0;
-        for(int i = 0; i < two.length(); i++){
-            char c = two.charAt(i);
+        StringBuilder third = new StringBuilder();
+        boolean isBeforeDot = false;
+        for(int i = 0; i < second.length(); i++){
+            char c = second.charAt(i);
             if(c == '.'){
-                if(flag == 0){
-                    sb.append(c);
-                    flag = 1;
-                }                    
+                if(!isBeforeDot){
+                    third.append(c);
+                    isBeforeDot = true;
+                }
             }
             else{
-                flag = 0;
-                sb.append(c);
+                third.append(c);
+                isBeforeDot = false;
             }
         }
         
-        // 4단계
-        if(sb.length() > 0 && sb.charAt(0) == '.'){
-            sb.deleteCharAt(0);
-        }
-        if(sb.length() > 0 && sb.charAt(sb.length() - 1) == '.'){
-            sb.deleteCharAt(sb.length() - 1);
-        }
+        if(third.length() > 0 && third.charAt(0) == '.') third.deleteCharAt(0);
+        if(third.length() > 0 && third.charAt(third.length() - 1) == '.') third.deleteCharAt(third.length() - 1);
         
-        // 5단계
-        if(sb.length() == 0){
-            sb.append("a");
-        }
+        if(third.length() == 0) third.append("a");
         
-        // 6단계
-        if(sb.length() >= 16){
-            sb = new StringBuilder(sb.substring(0, 15));
-            if(sb.charAt(sb.length() - 1) == '.'){
-                sb.deleteCharAt(sb.length() - 1);
+        StringBuilder sixth = new StringBuilder();
+        if(third.length() >= 16){
+            sixth.append(third.toString().substring(0, 15));
+            if(sixth.charAt(sixth.length() - 1) == '.'){
+                sixth.deleteCharAt(sixth.length() - 1);
             }
+        } else{
+            sixth = new StringBuilder(third);
         }
         
-        // 7단계
-        if(sb.length() <= 2){
-            while(sb.length() != 3){
-                sb.append(sb.charAt(sb.length() - 1));
+        if(sixth.length() > 0){
+            while(sixth.length() <= 2){
+                sixth.append(sixth.charAt(sixth.length() - 1));
             }
         }
         
         
-        return sb.toString();
+        return sixth.toString();
     }
 }
