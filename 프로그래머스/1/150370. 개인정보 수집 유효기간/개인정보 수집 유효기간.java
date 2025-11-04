@@ -2,49 +2,38 @@ import java.util.*;
 
 class Solution {
     public int[] solution(String today, String[] terms, String[] privacies) {
-        Map<String, Integer> termHash = new HashMap<>();
-        Map<String, String> privacyMap = new HashMap<>();
         
-        for(String str: terms){
-            String[] info = str.split(" ");
-            termHash.put(info[0], Integer.parseInt(info[1]));
+        int now = getDateNumber(today);
+        
+        Map<String, Integer> map = new HashMap<>();
+        for(int i = 0; i < terms.length; i++){
+            String[] cur = terms[i].split(" ");
+            map.put(cur[0], Integer.parseInt(cur[1]));
         }
-        List<Integer> answers = new ArrayList<>();
-        int index = 0;
-        for(String privacy: privacies){
-            String[] info = privacy.split(" ");
-            int finalDate = getFinalDate(info[0], termHash.get(info[1]));
-            index++;
-            if(!isValid(getDateToInteger(today), finalDate)){
-                answers.add(index);
+        List<Integer> list = new ArrayList<>();
+        for(int i = 0; i < privacies.length; i++){
+            String[] cur = privacies[i].split(" ");
+            int extraMonth = map.get(cur[1]);
+            int after = getDateNumber(cur[0]) + 28 * extraMonth;
+            if(now >= after){
+                list.add(i + 1);
             }
         }
+        int[] answer = new int[list.size()];
         
-        int[] result = new int[answers.size()];
-        int k = 0;
-        for(int i = 0; i < answers.size(); i++){
-            result[k++] = answers.get(i);
+        for(int i = 0; i < list.size(); i++){
+            answer[i] = list.get(i);
         }
         
-        return result;
+        return answer;
     }
     
     
-    boolean isValid(int today, int date){
-        if(today >= date) return false;
-        return true;
-    }
-               
-    public int getFinalDate(String prevDate, Integer month){
-        int date = getDateToInteger(prevDate);
-        return date + (month * 28);
-    }
-    
-    public int getDateToInteger(String date){
-        String[] dateYMD = date.split("\\.");
-        String year = dateYMD[0];
-        String month = dateYMD[1];
-        String day = dateYMD[2];
-        return Integer.parseInt(year) * 12 * 28 + Integer.parseInt(month) * 28 + Integer.parseInt(day);
+    int getDateNumber(String date){
+        String[] cur = date.split("\\.");
+        int year = Integer.parseInt(cur[0]) - 2000;
+        int month = Integer.parseInt(cur[1]) - 1;
+        int day = Integer.parseInt(cur[2]) - 1;
+        return year * 12 * 28 + month * 28 + day;
     }
 }
