@@ -1,98 +1,90 @@
 import java.util.*;
 
 class Solution {
-    // nextR, nextC가 사람인데
-    // 거리두기가 2이상이면 false;
-    // 근데 사람과 사람이 개먼데, 카운트로?
-    
-    class Pair{
-        int r;
-        int c;
-        int count;
-        
-        public Pair(int r, int c){
-            this.r = r;
-            this.c = c;
-        }
-        
-        public Pair(int r, int c, int count){
-            this.r = r;
-            this.c = c;
-            this.count = count;
-        }
-    }
     
     int[] dr = new int[]{-1, 1, 0, 0};
     int[] dc = new int[]{0, 0, -1, 1};
     
-    int n;
-    
     public int[] solution(String[][] places) {
-        this.n = 5;
-        
-        int[] answer = new int[n];
-        for(int i = 0; i < n; i++){
-            boolean result = inspect(i, places[i]);
-            if(result){
-                answer[i] = 1;
-            }
-            else{
-                answer[i] = 0;
-            }
+        int[] answer = new int[5];
+        int index = 0;
+        for(String[] place: places){
+            answer[index++] = isValid(place);
         }
+        
         return answer;
     }
     
-    boolean inspect(int r, String[] place){
-        List<Pair> person = new ArrayList<>();
-        for(int i = 0; i < n; i++){
-            for(int j = 0; j < n; j++){
-                if(place[i].charAt(j) == 'P'){
-                    person.add(new Pair(i, j, 0));
+    
+    int isValid(String[] place){
+        char[][] graph = new char[5][5];
+        for(int i = 0; i < 5; i++){
+            String[] row = place[i].split("");
+            for(int j = 0; j < 5; j++){
+                graph[i][j] = row[j].charAt(0);
+            }
+        }
+        
+        List<Pair> users = new ArrayList<>();
+        
+        for(int i = 0; i < 5; i++){
+            for(int j = 0; j < 5; j++){
+                if(graph[i][j] == 'P') {
+                    users.add(new Pair(i, j));         
                 }
             }
         }
         
-        for(int i = 0; i < person.size(); i++){
-            for(int j = i + 1; j < person.size(); j++){
-                Pair p1 = person.get(i);
-                Pair p2 = person.get(j);
-                int dist = Math.abs(p1.r - p2.r) + Math.abs(p1.c - p2.c);
-                if(dist <= 2){
-                    boolean result = bfs(place, p1, p2);
-                    if(!result) return false;
-                }
-            }
+        for(Pair user: users){
+            int answer = bfs(graph, user);
+            if(answer == 0) return 0;
         }
         
-        return true;
+        return 1;
+ 
     }
     
-    boolean bfs(String[] place, Pair p1, Pair p2){
-        Queue<Pair> queue = new ArrayDeque<>(List.of(p1));
-        boolean[][] visited = new boolean[n][n];
-        visited[p1.r][p1.c] = true;
+    int bfs(char[][] graph, Pair user){
+        Queue<Pair> queue = new ArrayDeque<>();
+        boolean[][] visited = new boolean[5][5];        
+        user.dist = 0;
+        queue.offer(user);    
+        visited[user.r][user.c] = true;
         
         while(!queue.isEmpty()){
             Pair cur = queue.poll();
             for(int i = 0; i < 4; i++){
-                int nextR = cur.r + dr[i];
-                int nextC = cur.c + dc[i];
-                if(0 <= nextR && nextR < n && 0 <= nextC && nextC < n){
-                    if(!visited[nextR][nextC] && place[nextR].charAt(nextC) != 'X'){
-                        if(nextR == p2.r && nextC == p2.c){
-                            if(cur.count <= 1) return false;
-                        }
-                        else{
-                        queue.offer(new Pair(nextR, nextC, cur.count + 1));
-                        visited[nextR][nextC] = true;
-                        }
+                int nextR = dr[i] + cur.r;
+                int nextC = dc[i] + cur.c;
+                if(0 <= nextR && nextR < 5 && 0 <= nextC && nextC < 5){
+                    if(!visited[nextR][nextC] && graph[nextR][nextC] != 'X'){
+                        if(graph[nextR][nextC] == 'P' && cur.dist < 2) return 0;
+                            queue.offer(new Pair(nextR, nextC, cur.dist + 1));
+                            visited[nextR][nextC] = true;
                     }
                 }
             }
         }
-
         
-        return true;
+        return 1;
+    }
+    
+    
+    
+    class Pair{
+        int r;
+        int c;
+        int dist;
+        
+        public Pair(int row, int col){
+            this.r = row;
+            this.c = col;
+        }
+        
+        public Pair(int row, int col, int dist){
+            this.r = row;
+            this.c = col;
+            this.dist = dist;
+        }
     }
 }
