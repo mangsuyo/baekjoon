@@ -1,84 +1,68 @@
-// 출발지와 도착지가 같으므로, 출발에서 정상까지만 최소를 유지해주면 될듯?
-// 총비용의 최소가 아니라, 간선의 최소
-
 import java.util.*;
 
 class Solution {
-    
-    Map<Integer, List<int[]>> graph;
-    int n;
-    
     public int[] solution(int n, int[][] paths, int[] gates, int[] summits) {
-        int[] answer = {};
         
-        graph = new HashMap<>();
-        this.n = n;
+        Map<Integer, List<int[]>> graph = new HashMap<>();
         
-        for(int[] p: paths){
-            graph.putIfAbsent(p[0], new ArrayList<>());
-            graph.putIfAbsent(p[1], new ArrayList<>());
-            graph.get(p[0]).add(new int[]{p[1], p[2]});
-            graph.get(p[1]).add(new int[]{p[0], p[2]});
-        }
-        Arrays.sort(summits);
-        
-        Queue<int[]> queue = new PriorityQueue<>((n1, n2) -> n1[1] - n2[1]);
-        
-        int[] dists = getMinPath(gates, summits);
-        
-        
-        for(int summit: summits){
-            queue.offer(new int[]{summit, dists[summit]});
+        for(int[] path: paths){
+            graph.putIfAbsent(path[0], new ArrayList<>());
+            graph.putIfAbsent(path[1], new ArrayList<>());
+            graph.get(path[0]).add(new int[]{path[1], path[2]});
+            graph.get(path[1]).add(new int[]{path[0], path[2]});
         }
         
-        return queue.poll();
-    }
-    
-    int[] getMinPath(int[] gates, int[] summits){
+        Queue<int[]> queue = new PriorityQueue<>((a, b) -> {
+            if(a[1] == b[1]) return a[0] - b[0];
+            return a[1] - b[1];
+        });
+        
         int[] dists = new int[n + 1];
         Arrays.fill(dists, Integer.MAX_VALUE);
-                
-        Queue<int[]> queue = new PriorityQueue<>((n1, n2) -> n1[1] - n2[1]);
         
         for(int i = 0; i < gates.length; i++){
-            dists[gates[i]] = 0;   
             queue.offer(new int[]{gates[i], 0});
+            dists[gates[i]] = 0;
         }
         
-        Map<Integer, Boolean> summitMap = new HashMap<>();
-        for(int i = 0; i < summits.length; i++){
-            summitMap.put(summits[i], true);
+        
+        Set<Integer> gateSet = new HashSet<>();
+        for(int gate: gates){
+            gateSet.add(gate);
         }
         
-        Map<Integer, Boolean> gateMap = new HashMap<>();
-        for(int i = 0; i < gates.length; i++){
-            gateMap.put(gates[i], true);
+        Set<Integer> summitSet = new HashSet<>();
+        for(int summit: summits){
+            summitSet.add(summit);
         }
-
         
         while(!queue.isEmpty()){
             int[] cur = queue.poll();
-            int curNode = cur[0];
-            int curDist = cur[1];
-            int flag = 0;
-            if(dists[curNode] < curDist) continue;
-            if(summitMap.containsKey(curNode)) continue;
+            if(summitSet.contains(cur[0])) continue;
+            if(cur[1] > dists[cur[0]]) continue;
+            if(!graph.containsKey(cur[0])) continue;
             
-            
-            if(graph.containsKey(curNode)){
-                for(int[] next: graph.get(curNode)){
-                    int nextNode = next[0];
-                    if(gateMap.containsKey(nextNode)) continue;
-                    int nextDist = Math.max(next[1], curDist);
-                    if(nextDist < dists[nextNode]){
-                        queue.offer(new int[]{nextNode, nextDist});
-                        dists[nextNode] = nextDist;
-                    }
+            for(int[] next: graph.get(cur[0])){
+                int nextNode = next[0];
+                if(gateSet.contains(nextNode)) continue;
+                int nextDist = Math.max(next[1], cur[1]);
+                if(nextDist < dists[nextNode]){
+                    queue.offer(new int[]{nextNode, nextDist});
+                    dists[nextNode] = nextDist;
                 }
-            }
+            }                
         }
         
+        int minDist = Integer.MAX_VALUE;
+        int summitNumber = 0;
         
-        return dists;
+        Arrays.sort(summits);
+        for(int i = 0; i < summits.length; i++){
+            if(minDist > dists[summits[i]]){
+                minDist = dists[summits[i]];
+                summitNumber = summits[i];
+            }
+        }
+        return new int[]{summitNumber, minDist};
     }
 }
